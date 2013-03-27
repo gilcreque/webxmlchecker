@@ -10,6 +10,7 @@ class Survey:
 
         root = objectify.fromstring(data)
         self.questionList = []
+        self.quotaList = []
 
         for i, webQuestion in enumerate(root.questions.iterchildren()):
             questionLabel = webQuestion['varname'].text
@@ -21,6 +22,7 @@ class Survey:
             quotaLabel = "quota_" + str(i)
             setattr(self, quotaLabel,
                     Quota(i, webQuota.iterchildren()))
+            self.quotaList.append(getattr (self, quotaLabel))
 
 
 class Question:

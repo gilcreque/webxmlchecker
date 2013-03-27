@@ -187,16 +187,20 @@ def check_question(question, checkFile, survey):
         if checks[0]:
             _question_warning_flag = True
             _check_file_text += checks[1]          
-    if _question_warning_flag == True:
+    if _question_warning_flag:
         dashText = ("-"*((78-len(question.varname))/2)) + " "
         dashText += question.varname + " "
         dashText += ("-"*(((78-len(question.varname)) + 2 / 2) / 2))   
         checkFile.write("\n" + dashText + "\n" + _check_file_text + "\n")
 
 
-def check_quota_logic(quota, survey):
-    check_logic(quota.name, "quota", quota.logic, survey)
-    pass
+def check_quota_logic(quota, checkFile, survey):
+    quotalogic = check_logic(quota.name, "quota", quota.logic, survey)
+    if quotalogic[0]:
+        dashText = ("-"*((78-len(quota.name))/2)) + " "
+        dashText += quota.name + " "
+        dashText += ("-"*(((78-len(quota.name)) + 2 / 2) / 2))   
+        checkFile.write("\n" + dashText + "\n" + quotalogic[1] + "\n")
 
 
 def main():
@@ -233,6 +237,8 @@ def main():
         try:
             for question in survey.questionList:
                 check_question(question, checkFile, survey)
+            for quota in survey.quotaList:
+                check_quota_logic(quota, checkFile, survey)
 
         finally:
             checkFile.close()

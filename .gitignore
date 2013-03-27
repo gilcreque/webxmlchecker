@@ -4,3 +4,6 @@
 *.xml
 *.txt
 *.pyc
+bin
+include
+lib
