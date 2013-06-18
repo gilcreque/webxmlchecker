@@ -239,6 +239,8 @@ def main():
                 check_question(question, checkFile, survey)
             for quota in survey.quotaList:
                 check_quota_logic(quota, checkFile, survey)
+            
+            print checkFile.read()
 
         finally:
             checkFile.close()
