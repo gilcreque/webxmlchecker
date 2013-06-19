@@ -208,7 +208,7 @@ def main():
 
     #check to see that minimum arguments were given
     if (len(sys.argv) == 1):
-        print "Usage: " + sys.argv[0] + " xmlFileName"
+        sys.stderr.write("Usage: " + sys.argv[0] + " xmlFileName\n")
         exit(2)
 
     xmlFileName = sys.argv[1]
@@ -217,7 +217,7 @@ def main():
     try:
         data = (open(xmlFileName, 'r')).read()
     except (IOError, NameError):
-        print "xmlFileName: " + xmlFileName + " not found"
+        sys.stderr.write("xmlFileName: " + xmlFileName + " not found\n")
         exit(2)
 
     #set filenames
@@ -239,15 +239,14 @@ def main():
                 check_question(question, checkFile, survey)
             for quota in survey.quotaList:
                 check_quota_logic(quota, checkFile, survey)
-            
-            print checkFile.read()
 
         finally:
             checkFile.close()
-
-    except IOError:
-        print "could not create/overwrite: " + resultFileName
-        pass
+            
+    except IOError, e:
+        sys.stderr.write("could not create/overwrite: " + resultFileName + '\n')
+        sys.stderr.write(str(e) + '\n')        
+        exit(2)
 
 if __name__ == '__main__':
     main()
