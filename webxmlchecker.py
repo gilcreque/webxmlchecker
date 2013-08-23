@@ -2,6 +2,7 @@
 
 import re
 import sys
+import collections
 from pprint import pprint
 from datetime import datetime
 
@@ -233,12 +234,23 @@ def main():
         checkFile.write("Runtime: " + 
                         str(datetime.now().strftime('%a %b %d %Y %I:%M:%S%p'))
                         + "\n")
-
         try:
             for question in survey.questionList:
                 check_question(question, checkFile, survey)
+            
+            quotaLogicList = []
+            
             for quota in survey.quotaList:
                 check_quota_logic(quota, checkFile, survey)
+                quotaLogicList.append(quota.logic)
+
+            dupeQuotaLogic = [x for x, y in collections.Counter(quotaLogicList).items() if y > 1]
+            if dupeQuotaLogic:
+                dupeText = ', '.join(dupeQuotaLogic)
+                dashText = ("-"*((78-len("Quota Logic Dupes Found"))/2))
+                dashText += " Quota Logic Dupes Found "
+                dashText += ("-"*(((78-len("Quota Logic Dupes Found")) + 2 / 2) / 2))   
+                checkFile.write("\n" + dashText + "\n" + dupeText + "\n")
 
         finally:
             checkFile.close()
