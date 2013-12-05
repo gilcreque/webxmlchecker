@@ -88,16 +88,25 @@ def check_question_nummult(question):
         if question.num_responses < 1:
             _check_file_text += (question.varname + " is a " + question.type +
                             " type and NumMult is less than one\n")
-            _question_warning_flag = True
             return True, _check_file_text
     for k, v in _nummult_default.iteritems():
         if question.type == k and question.num_responses != v:
             _check_file_text += (question.varname + " is a " + k +
                      " type and NumMult is not default(" + str(v) + ")\n")
-            _question_warning_flag = True
             return True, _check_file_text
     return False,
 
+def check_question_multvalid(question):
+
+    _check_file_text = ""
+    _multvalid_gt_zero = ['Multiple']
+
+    if question.type in _multvalid_gt_zero:
+        if question.num_responses_valid < 1:
+            _check_file_text += (question.varname + " is a " + question.type +
+                            " type and Valid Responses is less than one\n")
+            return True, _check_file_text
+    return False,
 
 def check_logic(name, typename, logic, survey):
 
@@ -180,9 +189,10 @@ def check_question(question, checkFile, survey):
     location = check_question_location(question)
     length = check_question_length(question)
     nummult = check_question_nummult(question)
+    multvalid = check_question_multvalid(question)
     filterlogic = check_filter_logic(question, survey)
 
-    check_question_list = [validate, location, length, nummult, filterlogic]
+    check_question_list = [validate, location, length, nummult, multvalid, filterlogic]
 
     for i, checks in enumerate(check_question_list):
         if checks[0]:
