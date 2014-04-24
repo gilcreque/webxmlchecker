@@ -51,7 +51,7 @@ class Question:
             if attribute.tag == "responses":
                 if parent_question is None:
                     setattr(self, attribute.tag,
-                    Response(attribute.iterchildren()))
+                            Response(attribute.iterchildren()))
                 else:
                     if hasattr(parent_question, attribute.tag):
                         parent_attribute = getattr(parent_question, attribute.tag)
@@ -71,6 +71,11 @@ class Question:
                         pass
                 setattr(self, attribute.tag, attrvalue)
 
+        if getattr(self, 'other_specify'):
+            responses = getattr(self, 'responses')
+            responses.responseCodeDict['_97'] = {'islogic': False, 'text': 'Other Specify', 'terminate': False, 'order': None, 'logic': None, 'scramble': False}
+            setattr(responses, '_97', ResponseCode({'islogic': False, 'text': 'Other Specify', 'terminate': False, 'order': None, 'logic': None, 'scramble': False}))
+
     def __str__(self):
         return getattr(self, "varname")
 
@@ -80,11 +85,12 @@ class Response:
 
     def __init__(self, iterator):
 
-        responseCodeDict = {}
+        self.responseCodeDict = {}
+
         for i, attribute in enumerate(iterator):
             responseCode = "_" + attribute['code'].text
-            responseCodeDict[responseCode] = {}
-            responseCodeDict[responseCode]["order"] = i
+            self.responseCodeDict[responseCode] = {}
+            self.responseCodeDict[responseCode]["order"] = i
             responseAttr = (
             "islogic", "logic", "text", "terminate", "scramble")
             for attrb in responseAttr:
@@ -98,10 +104,20 @@ class Response:
                         attrvalue = int(attrvalue)
                     except ValueError:
                         pass
-                responseCodeDict[responseCode][attribute[attrb].tag] = (
+                self.responseCodeDict[responseCode][attribute[attrb].tag] = (
                                  attrvalue)
-        for k, v in responseCodeDict.iteritems():
+
+        for k, v in self.responseCodeDict.iteritems():
             setattr(self, k, ResponseCode(v))
+
+    def __str__(self):
+
+        returnString = ''
+        for k, v in self.responseCodeDict.iteritems():
+            returnString += "\t"
+            returnString += str(k) + " " + str(v)
+            returnString += "\n"
+        return returnString
 
 
 class ResponseCode:

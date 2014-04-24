@@ -83,7 +83,7 @@ def check_question_nummult(question):
     _check_file_text = ""
     _nummult_gt_zero = ['Category', 'Multiple', 'Numeric',
                         'Calculation']
-    _nummult_default = {'OpenEnd': 2, 'OpenEndBig': 10, 'Display': 1,
+    _nummult_default = {'OpenEnd': 1, 'OpenEndBig': 10, 'Display': 1,
                         'Random': 1}
 
     if question.type in _nummult_gt_zero:
@@ -144,7 +144,6 @@ def check_logic(name, typename, logic, survey):
                 punchesMatch.remove(punches)
                 for i in range(rangeLow, rangeHigh):
                     punchesMatch.append(str(i).zfill(punchLength))
-        #print punchesMatch
         for punches in punchesMatch:
             try:
                 getattr(getattr(questionCheck, "responses"), "_"+punches)
@@ -154,7 +153,6 @@ def check_logic(name, typename, logic, survey):
                         checkPunches = int(punches)
                         numRange = range(questionCheck.min,
                                          questionCheck.max+1)
-                        #print checkPunches, numRange
                         if checkPunches not in numRange:
                             raise ValueError
                     except ValueError:
