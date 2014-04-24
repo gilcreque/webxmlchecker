@@ -3,27 +3,28 @@
 import re
 import sys
 import collections
-from pprint import pprint
+# from pprint import pprint
 from datetime import datetime
 
 import websurvey
+
 
 def check_question_validate_checkbox(question):
 
     _check_file_text = ""
     _valid_checked_type = ['Category', 'Multiple', 'Numeric', 'OpenEnd',
-                        'OpenEndBig']
+                           'OpenEndBig']
     _valid_not_checked_type = ['Display', 'Calculation', 'Random']
 
     if question.type in _valid_checked_type:
         if not question.validate:
             _check_file_text += (question.varname + " is a " + question.type +
-                            " type and validate is not checked\n")
+                                 " type and validate is not checked\n")
             return True, _check_file_text
     elif question.type in _valid_not_checked_type:
         if question.validate:
             _check_file_text += (question.varname + " is a " + question.type +
-                            " type and validate is checked\n")
+                                 " type and validate is checked\n")
             return True, _check_file_text
     return False,
 
@@ -32,19 +33,19 @@ def check_question_location(question):
 
     _check_file_text = ""
     _location_gt_zero = ['Category', 'Multiple', 'Numeric', 'OpenEnd',
-                      'OpenEndBig', 'Calculation', 'Random']
+                         'OpenEndBig', 'Calculation', 'Random']
     _location_zero = ['Display']
 
     if question.type in _location_gt_zero and question.displayType != "Grid":
         if question.location < 1:
             _check_file_text += (question.varname + " is a " + question.type +
-                            " type and location is less than one\n")
+                                 " type and location is less than one\n")
             return True, _check_file_text
     elif (question.type in _location_zero) or (question.type == "Category" and
-                                            question.displayType == "Grid"):
+                                               question.displayType == "Grid"):
         if question.location != 0:
             _check_file_text += (question.varname + " is a Grid Display and " +
-                            "location is not zero\n")
+                                 "location is not zero\n")
             return True, _check_file_text
     return False,
 
@@ -53,25 +54,26 @@ def check_question_length(question):
 
     _check_file_text = ""
     _length_gt_zero = ['Category', 'Multiple', 'Numeric',
-                    'Calculation', 'Random']
+                       'Calculation', 'Random']
     _length_zero = ['Display']
     _length_default = {'OpenEnd': 2, 'OpenEndBig': 20}
 
     if question.type in _length_gt_zero and question.displayType != "Grid":
         if question.length < 1:
             _check_file_text += (question.varname + " is a " + question.type +
-                            " type and length is less than one\n")
+                                 " type and length is less than one\n")
             return True, _check_file_text
     elif (question.type in _length_zero) or (question.type == "Category" and
-                                            question.displayType == "Grid"):
+                                             question.displayType == "Grid"):
         if question.length != 0:
-            _check_file_text += (question.varname + " is a Grid Display and " + 
-                            "length is not zero\n")
+            _check_file_text += (question.varname + " is a Grid Display and " +
+                                 "length is not zero\n")
             return True, _check_file_text
     for k, v in _length_default.iteritems():
         if question.type == k and question.length != v:
             _check_file_text += (question.varname + " is a " + k +
-                     " type and length is not default(" + str(v) + ")\n")
+                                 " type and length is not default(" + str(v) +
+                                 ")\n")
             return True, _check_file_text
     return False,
 
@@ -80,21 +82,23 @@ def check_question_nummult(question):
 
     _check_file_text = ""
     _nummult_gt_zero = ['Category', 'Multiple', 'Numeric',
-                    'Calculation']
+                        'Calculation']
     _nummult_default = {'OpenEnd': 2, 'OpenEndBig': 10, 'Display': 1,
-                    'Random': 1}
+                        'Random': 1}
 
     if question.type in _nummult_gt_zero:
         if question.num_responses < 1:
             _check_file_text += (question.varname + " is a " + question.type +
-                            " type and NumMult is less than one\n")
+                                 " type and NumMult is less than one\n")
             return True, _check_file_text
     for k, v in _nummult_default.iteritems():
         if question.type == k and question.num_responses != v:
             _check_file_text += (question.varname + " is a " + k +
-                     " type and NumMult is not default(" + str(v) + ")\n")
+                                 " type and NumMult is not default(" + str(v) +
+                                 ")\n")
             return True, _check_file_text
     return False,
+
 
 def check_question_multvalid(question):
 
@@ -104,33 +108,33 @@ def check_question_multvalid(question):
     if question.type in _multvalid_gt_zero:
         if question.num_responses_valid < 1:
             _check_file_text += (question.varname + " is a " + question.type +
-                            " type and Valid Responses is less than one\n")
+                                 " type and Valid Responses is less than one\n")
             return True, _check_file_text
     return False,
+
 
 def check_logic(name, typename, logic, survey):
 
     _check_file_text = ""
-    _logic_groups = re.findall(
-                     '([A-Za-z+][A-Za-z0-9]*\([A-Za-z0-9,-]+\))', logic)
+    _logic_groups = re.findall('([A-Za-z+][A-Za-z0-9]*\([A-Za-z0-9,-]+\))',
+                               logic)
     #print name, ' '.join(_logic_groups)
     for logic in _logic_groups:
         notInRange = False
         notInRangeList = []
-        questionMatch = re.search(
-                      '([A-Za-z+][A-Za-z0-9]*(?=\([A-Za-z0-9,-]+\)))'
-                      , logic).group(0)
+        questionMatch = re.search('([A-Za-z+][A-Za-z0-9]*(?=\([A-Za-z0-9,-]+\)))'
+                                  , logic).group(0)
         try:
-            questionCheck = getattr (survey, questionMatch)
+            questionCheck = getattr(survey, questionMatch)
         except (AttributeError):
-            _check_file_text += (name + " " + typename + " error: " + 
-                                "\"" + questionMatch +
-                                "\" is not a valid question\n")
+            _check_file_text += (name + " " + typename + " error: " +
+                                 "\"" + questionMatch +
+                                 "\" is not a valid question\n")
             return True, _check_file_text
             break
         
-        punchesMatch = re.split(",", re.search('(?<=\()([A-Za-z0-9,-]+)',
-                        logic).group(0))
+        punchesMatch = re.split(",", re.search('(?<=\()([A-Za-z0-9,-]+)'
+                                               , logic).group(0))
         for punches in punchesMatch:
             findRange = re.search('([0-9]+)(-)([0-9]+)', punches)
             if findRange:
@@ -138,18 +142,18 @@ def check_logic(name, typename, logic, survey):
                 rangeLow = int(findRange.group(1))
                 rangeHigh = int(findRange.group(3))+1
                 punchesMatch.remove(punches)
-                for i in range (rangeLow, rangeHigh): 
+                for i in range(rangeLow, rangeHigh):
                     punchesMatch.append(str(i).zfill(punchLength))
         #print punchesMatch
         for punches in punchesMatch:
             try:
-                getattr (getattr (questionCheck, "responses"), "_"+punches)
-            except (AttributeError):
+                getattr(getattr(questionCheck, "responses"), "_"+punches)
+            except AttributeError:
                 if questionCheck.type == "Numeric":
                     try:
                         checkPunches = int(punches)
-                        numRange = range (questionCheck.min, 
-                                          questionCheck.max+1)
+                        numRange = range(questionCheck.min,
+                                         questionCheck.max+1)
                         #print checkPunches, numRange
                         if checkPunches not in numRange:
                             raise ValueError
@@ -158,19 +162,19 @@ def check_logic(name, typename, logic, survey):
                         notInRangeList.append(punches)
                 else:
                     _check_file_text += (name + " " + typename +
-                                        " error: " + "\"" + punches +
-                                        "\" is not a valid response for " +
-                                        questionMatch + "\n")
+                                         " error: " + "\"" + punches +
+                                         "\" is not a valid response for " +
+                                         questionMatch + "\n")
                     return True, _check_file_text
         if notInRange:
             _check_file_text += (name + " " + typename + " error: \"" +
-                                ", ".join(notInRangeList) +
-                                "\" not within range for " +
-                                questionMatch + "\n")
+                                 ", ".join(notInRangeList) +
+                                 "\" not within range for " +
+                                 questionMatch + "\n")
             return True, _check_file_text
     return False,
-        
-        
+
+
 def check_filter_logic(question, survey):
     if question.filter is None:
         _check_file_text = (question.varname + " has a blank filter\n")
@@ -179,6 +183,7 @@ def check_filter_logic(question, survey):
         return check_logic(question.varname, "filter", question.filter, survey)
     else:
         return False,
+
 
 def check_question(question, checkFile, survey):
 
@@ -192,16 +197,17 @@ def check_question(question, checkFile, survey):
     multvalid = check_question_multvalid(question)
     filterlogic = check_filter_logic(question, survey)
 
-    check_question_list = [validate, location, length, nummult, multvalid, filterlogic]
+    check_question_list = [validate, location, length, nummult, multvalid,
+                           filterlogic]
 
     for i, checks in enumerate(check_question_list):
         if checks[0]:
             _question_warning_flag = True
-            _check_file_text += checks[1]          
+            _check_file_text += checks[1]
     if _question_warning_flag:
         dashText = ("-"*((78-len(question.varname))/2)) + " "
         dashText += question.varname + " "
-        dashText += ("-"*(((78-len(question.varname)) + 2 / 2) / 2))   
+        dashText += ("-"*(((78-len(question.varname)) + 2 / 2) / 2))
         checkFile.write("\n" + dashText + "\n" + _check_file_text + "\n")
 
 
@@ -216,9 +222,8 @@ def check_quota_logic(quota, checkFile, survey):
 
 def main():
 
-
     #check to see that minimum arguments were given
-    if (len(sys.argv) == 1):
+    if len(sys.argv) == 1:
         sys.stderr.write("Usage: " + sys.argv[0] + " xmlFileName\n")
         exit(2)
 
@@ -254,12 +259,15 @@ def main():
                 check_quota_logic(quota, checkFile, survey)
                 quotaLogicList.append(quota.logic)
 
-            dupeQuotaLogic = [x for x, y in collections.Counter(quotaLogicList).items() if y > 1]
+            dupeQuotaLogic = [x for x, y in
+                              collections.Counter(quotaLogicList).items()
+                              if y > 1]
             if dupeQuotaLogic:
                 dupeText = ', '.join(dupeQuotaLogic)
                 dashText = ("-"*((78-len("Quota Logic Dupes Found"))/2))
                 dashText += " Quota Logic Dupes Found "
-                dashText += ("-"*(((78-len("Quota Logic Dupes Found")) + 2 / 2) / 2))   
+                dashText += ("-"*(((78-len("Quota Logic Dupes Found")) + 2 / 2)
+                                  / 2))
                 checkFile.write("\n" + dashText + "\n" + dupeText + "\n")
 
         finally:
@@ -267,7 +275,7 @@ def main():
             
     except IOError, e:
         sys.stderr.write("could not create/overwrite: " + resultFileName + '\n')
-        sys.stderr.write(str(e) + '\n')        
+        sys.stderr.write(str(e) + '\n')
         exit(2)
 
 if __name__ == '__main__':

@@ -24,6 +24,9 @@ class Survey:
                     Quota(i, webQuota.iterchildren()))
             self.quotaList.append(getattr (self, quotaLabel))
 
+    def __str__(self):
+        selfString = '\n'.join([str(question) for question in self.questionList])
+        return selfString
 
 class Question:
     """Class for questions in survey"""
@@ -50,6 +53,8 @@ class Question:
                         pass
                 setattr(self, attribute.tag, attrvalue)
 
+    def __repr__(self):
+        return getattr(self, "varname")
 
 class Response:
     """Class for responses in survey"""
