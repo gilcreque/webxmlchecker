@@ -11,12 +11,24 @@ class Survey:
         root = objectify.fromstring(data)
         self.questionList = []
         self.quotaList = []
+        gridCounter = 0
 
         for i, webQuestion in enumerate(root.questions.iterchildren()):
+            i += gridCounter
             questionLabel = webQuestion['varname'].text
             setattr(self, questionLabel,
                     Question(i, webQuestion.iterchildren()))
-            self.questionList.append(getattr (self, questionLabel))
+            self.questionList.append(getattr(self, questionLabel))
+
+            if webQuestion['displayType'].text == 'Grid':
+                parent_question = getattr(self,questionLabel)
+                for j, gridQuestion in enumerate(webQuestion.questions.iterchildren()):
+                    gridCounter += 1
+                    i += 1
+                    questionLabel = gridQuestion['varname'].text
+                    setattr(self, questionLabel,
+                            Question(i, gridQuestion.iterchildren(), parent_question))
+                    self.questionList.append(getattr(self, questionLabel))
 
         for i, webQuota in enumerate(root.quotas.iterchildren()):
             quotaLabel = "quota_" + str(i)
@@ -28,16 +40,22 @@ class Survey:
         selfString = '\n'.join([str(question) for question in self.questionList])
         return selfString
 
+
 class Question:
     """Class for questions in survey"""
 
-    def __init__(self, order, iterator):
+    def __init__(self, order, iterator,  parent_question=None):
 
         self.order = order
         for attribute in iterator:
             if attribute.tag == "responses":
-                setattr(self, attribute.tag,
-                Response(attribute.iterchildren()))
+                if parent_question is None:
+                    setattr(self, attribute.tag,
+                    Response(attribute.iterchildren()))
+                else:
+                    if hasattr(parent_question, attribute.tag):
+                        parent_attribute = getattr(parent_question, attribute.tag)
+                        setattr(self, attribute.tag, parent_attribute)
             else:
                 attrvalue = attribute.text
                 if attribute.tag == "filter" and attrvalue == "TN":
@@ -53,8 +71,9 @@ class Question:
                         pass
                 setattr(self, attribute.tag, attrvalue)
 
-    def __repr__(self):
+    def __str__(self):
         return getattr(self, "varname")
+
 
 class Response:
     """Class for responses in survey"""
